@@ -1,0 +1,28 @@
+{
+  "kind": "univ4_hook",
+  "hook": {
+    "contract": "BuyStreakHook",
+    "constructorArgs": [
+      "0xE03A1074c86CFeDd5C142C4F04F1a1536e203543"
+    ],
+    "permissions": [
+      "beforeSwap",
+      "afterSwap",
+      "beforeSwapReturnDelta",
+      "afterSwapReturnDelta"
+    ]
+  },
+  "token": {
+    "contract": "STREAK",
+    "name": "Streak",
+    "symbol": "STREAK",
+    "decimals": 18
+  },
+  "pool": {
+    "pairedCurrency": "0x0000000000000000000000000000000000000000",
+    "fee": 3000,
+    "tickSpacing": 60,
+    "initialPrice": "792281625142643375935439503360000"
+  },
+  "notes": "Describes src/BuyStreakHook.sol and src/STREAK.sol for the approved Sepolia launch. The hook constructor takes only the PoolManager address; the token constructor takes no arguments. All unlisted hook permissions are false, giving address mask 0x00cc. The constructor validates these permissions, and every callback requires the PoolManager. ABI exports are docs/abi/BuyStreakHook.json and docs/abi/STREAK.json.\n\nThe pool uses native ETH as currency0 and deployed STREAK as currency1, with a static LP fee of 3000 and tickSpacing 60. initialPrice is decimal sqrtPriceX96, equal to 10000 * 2^96: 100000000 STREAK per ETH with equal 18-decimal units. This adopts the price exercised by test/fixtures/LaunchFactory.sol and the local token-only seed and first-buy rehearsal.\n\nBuy streaks are keyed by PoolId and identity, using UTC days. Qualifying buys have an ETH leg of at least 0.0005 ETH; repeated buys on the same day do not extend the streak, missed days reset it, and sells never extend it. Both swap directions pay a separate ETH-leg hook fee of max(100 - 10 * effectiveStreak, 30) bps, using the pre-swap streak. ETH-specified swaps charge a positive specified beforeSwap delta; ETH-unspecified swaps charge a positive unspecified afterSwap delta. Fees round down, and partial fills revert. Fees accrue as ERC-6909 ETH claims; permissionless burnFees burns the claims and sends ETH only to 0x000000000000000000000000000000000000dEaD through the hook's unlockCallback.\n\nIdentity requires exactly 32 bytes of canonical address hookData, nonzero and equal to tx.origin; otherwise swaps receive no streak credit and pay the base fee. This is a pricing check, not spending authorization. Relayed smart-contract wallets do not earn discounts. Pools without native ETH as currency0 receive zero deltas and no streak updates. Views are streakOf and feeFor; StreakUpdated records qualifying daily updates. Policy and signed artifact linkage belong to later services. This manifest does not attest independent review, admission or deployment."
+}
