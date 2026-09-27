@@ -1,0 +1,5 @@
+foundry-rs/forge-std
+commit: 77041d2ce690e692d6e03cc812b57d1ddaa4d505
+ref: v1.9.7
+Source and license files vendored as ordinary files.
+Only source files needed by this project are retained; unused sources omitted.

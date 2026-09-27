@@ -1,0 +1,4 @@
+transmissions11/solmate
+commit: 4b47a19038b798b4a33d9749d25e570443520647
+Only src/auth/Owned.sol (SPDX: AGPL-3.0-only), required by v4-core.
+Only source files needed by this project are retained; unused sources omitted.

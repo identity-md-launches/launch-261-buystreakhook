@@ -1,0 +1,5 @@
+OpenZeppelin/openzeppelin-contracts
+commit: acd4ff74de833399287ed6b31b4debf6b2b35527
+ref: v5.2.0
+Source and license files vendored as ordinary files.
+Only source files needed by this project are retained; unused sources omitted.
