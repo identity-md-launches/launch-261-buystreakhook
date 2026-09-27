@@ -11,6 +11,7 @@ import {PoolSwapTest} from "v4-core/src/test/PoolSwapTest.sol";
 import {PoolModifyLiquidityTest} from "v4-core/src/test/PoolModifyLiquidityTest.sol";
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {PoolId} from "v4-core/src/types/PoolId.sol";
+import {Currency} from "v4-core/src/types/Currency.sol";
 import {SwapParams} from "v4-core/src/types/PoolOperation.sol";
 import {BalanceDelta, toBalanceDelta} from "v4-core/src/types/BalanceDelta.sol";
 import {TickMath} from "v4-core/src/libraries/TickMath.sol";
@@ -95,6 +96,19 @@ abstract contract StreakFixture is Test {
         internal
         returns (BalanceDelta delta, uint256 fee)
     {
+        return _checkedSwap(key, user, params, data, bps);
+    }
+
+    /// @dev Also checks pools sharing the launch token but differing in another PoolKey field.
+    function _checkedSwap(
+        PoolKey memory swapKey,
+        address user,
+        SwapParams memory params,
+        bytes memory data,
+        uint256 bps
+    ) internal returns (BalanceDelta delta, uint256 fee) {
+        assertTrue(swapKey.currency0.isAddressZero(), "fixture checks native ETH");
+        assertEq(Currency.unwrap(swapKey.currency1), address(token), "fixture checks the launch token");
         Snapshot memory before_ = Snapshot(
             hook.accruedFees(),
             user.balance,
@@ -103,8 +117,8 @@ abstract contract StreakFixture is Test {
             token.balanceOf(address(manager))
         );
         vm.recordLogs();
-        delta = _swap(key, user, params, data);
-        BalanceDelta core = _coreDelta(vm.getRecordedLogs(), poolId);
+        delta = _swap(swapKey, user, params, data);
+        BalanceDelta core = _coreDelta(vm.getRecordedLogs(), swapKey.toId());
         bool ethSpecified = params.zeroForOne == (params.amountSpecified < 0);
         uint256 base = ethSpecified ? _abs(params.amountSpecified) : _abs(core.amount0());
         fee = base * bps / 10_000;
